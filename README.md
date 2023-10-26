@@ -1,4 +1,4 @@
-# Advent_of_Code 2018 
+# Advent_of_Code 2023 
 Lösungen zu AoC in Python 3.x
 
 Jedes Jahr im Dezember gibt es auf der Webseite https://adventofcode.com/ Aufgaben für Programmierer, die wie ein Adventskalender funktionieren.
