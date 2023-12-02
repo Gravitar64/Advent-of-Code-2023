@@ -17,7 +17,5 @@ def solve(p):
 
 
 time_start = time.perf_counter()
-puzzle = load('day02.txt')
-solution = solve(puzzle)
-print(f'Solution: {solution}')
+print(f'Solution: {solve(load("day02.txt"))}')
 print(f'Solved in {time.perf_counter()-time_start:.5f} Sec.')
