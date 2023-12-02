@@ -1,5 +1,4 @@
-import time
-import re
+import time, re
 
 
 def load(file):
@@ -8,11 +7,9 @@ def load(file):
   
 
 def solve(p):
-  pass
+  return p
 
 
 time_start = time.perf_counter()
-puzzle = load('day01.txt')
-part1 = solve(puzzle)
-print(f'Part 1: {part1}')
+print(f'Part 1: {solve(load("day01.txt"))}')
 print(f'Solved in {time.perf_counter()-time_start:.5f} Sec.')
