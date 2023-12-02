@@ -10,15 +10,14 @@ def load(file):
 
 def solve(p):
   target = dict(red=12, green=13, blue=14)
-  boxes = [(re.findall('blue|red|green', row), list(map(int, re.findall('\d+', row)))) for row in p]
-  part1 = sum(n[0] for c,n in boxes if all(target[color] >= amount for color,amount in zip(c,n[1:])))
-  part2 = sum([math.prod([max(amount for c2, amount in zip(c,n[1:]) if c2 == c1) for c1 in target]) for c,n in boxes])
+  bags = [[box.split() for box in re.findall('\d+ \w+', row)] for row in p]
+  part1 = sum(i for i,bag in enumerate(bags,start=1) if all(target[c] >= int(n) for n,c in bag))
+  part2 = sum([math.prod([max(int(n) for n,c2 in bag if c2 == c1) for c1 in target]) for bag in bags])
   return part1, part2
 
 
 time_start = time.perf_counter()
 puzzle = load('day02.txt')
-part1, part2 = solve(puzzle)
-print(f'Part 1: {part1}')
-print(f'Part 2: {part2}')
+solution = solve(puzzle)
+print(f'Solution: {solution}')
 print(f'Solved in {time.perf_counter()-time_start:.5f} Sec.')
