@@ -7,7 +7,7 @@ def load(file):
   
   
 def num_pos(matches):
-  return [(int(match.group()),set(range(match.span()[0], match.span()[1]))) for match in matches]  
+  return [(int(match.group()),set(range(*match.span()))) for match in matches]  
   
 
 def adjacents(matches,rl):
