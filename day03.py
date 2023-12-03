@@ -1,52 +1,31 @@
-import time, itertools, re
+import time, re, math
 
 
 def load(file):
   with open(file) as f:
-    return [row.strip() for row in f]
+    return f.read()
 
 
-def adjacents(x, y):
-  adj = set()
-  for dx, dy in itertools.product(range(-1, 2), repeat=2):
-    adj.add((x + dx, y + dy))
-  return adj
+def adjacents(matches, rl):
+  return {match.span()[0] + delta for match in matches for delta in (-rl - 1, -rl, -rl + 1, -1, 1, rl - 1, rl, rl + 1)}
 
 
-def is_adjacent(positions, symbols):
-  return set(positions) & symbols
+def numbers_positions(matches):
+  return [(int(match.group()), set(range(match.span()[0], match.span()[1]))) for match in matches]
 
 
 def solve(p):
-  part1 = part2 = 0
-  
-  numbers, symbols, gears = [], set(), set()
-  for y, row in enumerate(p):
-    number, positions = '', set()
-    for x, c in enumerate(row):
-      if c.isdigit():
-        number += c
-        positions.add((x, y))
-      else:
-        if c != '.':  
-          symbols.update(adjacents(x, y))
-          if c == '*': gears.add(frozenset(adjacents(x,y)))
-      if number and (not c.isdigit() or x == len(row)-1):
-        numbers.append((int(number),positions))
-        number, positions = '', set()
-   
-  for number, positions in numbers:
-    if not is_adjacent(positions, symbols): continue
-    part1 += number
+  row_lenght = p.index('\n') + 1
+  numbers = numbers_positions(re.finditer('\d+', p))
+  symbols = adjacents(re.finditer('[^0-9.\n]', p), row_lenght)
+  gears = [adjacents([match], row_lenght) for match in re.finditer('\*', p)]
 
-  for pos1 in gears:
-    gear_numbers = []
-    for number, pos2 in numbers:
-      if  set(pos2) & pos1: gear_numbers.append(number)
-    if len(gear_numbers) == 2:
-      part2 += gear_numbers[0] * gear_numbers[1]       
-    
-  return part1,part2
+  part1 = sum(n for n, p in numbers if p & symbols)
+  part2 = sum(math.prod(gn) 
+              if len(gn := [n for n, p in numbers if p & gear]) == 2 else 0 
+              for gear in gears)
+  
+  return part1, part2
 
 
 time_start = time.perf_counter()
