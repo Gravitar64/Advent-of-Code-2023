@@ -20,14 +20,14 @@ def change_seed(seed,converters,low=1):
 
 def solve(p):
   numbers = [list(map(int, re.findall('\d+', part))) for part in p]
-  seeds, converters = numbers[0], numbers[1:]
+  seeds, *converters = numbers
   part1 = part2 = float('inf')
 
   for seed in seeds:
     seed, _ = change_seed(seed, converters)
     part1 = min(part1, seed)
 
-  pairs = [(seeds[i], seeds[i] + seeds[i + 1] - 1) for i in range(0, len(seeds), 2)]
+  pairs = [(a,a+b) for a,b in zip(seeds[::2], seeds[1::2])]
   for low, high in pairs:
     while low < high:
       seed = low
