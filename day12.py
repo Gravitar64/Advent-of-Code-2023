@@ -9,10 +9,8 @@ def load(file):
 @functools.cache
 def count(spr, gr):
   spr = spr.lstrip('.')
-  if not spr:
-    return not gr
-  if not gr:
-    return '#' not in spr
+  if not spr: return not gr
+  if not gr:  return '#' not in spr
 
   if spr[0] == '#':
     if len(spr) < gr[0] or '.' in spr[:gr[0]] or spr[gr[0]] == '#': return 0
