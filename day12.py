@@ -4,36 +4,32 @@ import time, functools
 def load(file):
   with open(file) as f:
     return [row.strip().split() for row in f]
-  
+
 
 @functools.cache
-def count(springs, groups):
-  springs = springs.lstrip('.')
-  if not springs: return not groups
-  if not groups: return '#' not in springs
+def count(spr, gr):
+  spr = spr.lstrip('.')
+  if not spr:
+    return not gr
+  if not gr:
+    return '#' not in spr
 
-  if springs[0] == '#':
-    if len(springs) < groups[0] or '.' in springs[:groups[0]]:
-      return 0
-    elif len(springs) == groups[0]:
-      return len(groups) == 1
-    elif springs[groups[0]] == '#':
-      return 0
-    else:
-      return count(springs[groups[0]+1:], groups[1:])
+  if spr[0] == '#':
+    if len(spr) < gr[0] or '.' in spr[:gr[0]] or spr[gr[0]] == '#': return 0
+    return count(spr[gr[0] + 1:], gr[1:])
 
-  return count('#' + springs[1:], groups) + count(springs[1:], groups)  
-  
+  return count('#' + spr[1:], gr) + count(spr[1:], gr)
+
 
 def solve(p):
   part1 = part2 = 0
-  
+
   for springs, groups in p:
     groups = tuple(int(n) for n in groups.split(','))
-    part1 += count(springs, groups)
-    part2 += count((springs+'?')*4 + springs, groups*5)
+    part1 += count(springs + '.', groups)
+    part2 += count((springs + '?') * 4 + springs + '.', groups * 5)
 
-  return part1, part2  
+  return part1, part2
 
 
 time_start = time.perf_counter()
