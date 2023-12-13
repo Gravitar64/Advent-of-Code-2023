@@ -6,38 +6,45 @@ def load(file):
     return f.read().split('\n\n')
 
 
-def mirror(pattern, vertical):
-  pattern = list(zip(*pattern)) if vertical else pattern
-  for start in range(1,len(pattern)):
-    for dy in range(start):
-      if start - dy -1 >= 0 and start + dy < len(pattern):
-        if pattern[start - dy - 1] == pattern[start + dy]: continue
+def mirror(pattern):
+  for start in range(1, len(pattern)):
+    low, high = start - 1, start
+    is_mirror = True
+
+    while low >= 0 and high < len(pattern):
+      if pattern[low] != pattern[high]:
+        is_mirror = False
         break
-    else:  
-      return start
+      low, high = low - 1, high + 1
+
+    if is_mirror: return start
+
   return 0
 
 
-def mirror_smudge(pattern, vertical):
-  pattern = list(zip(*pattern)) if vertical else pattern
-  for start in range(1,len(pattern)):
+def mirror_smudge(pattern):
+  for start in range(1, len(pattern)):
+    low, high = start - 1, start
     diff = 0
-    for dy in range(start):
-      if start - dy -1 >= 0 and start + dy < len(pattern):
-        diff += sum(a != b for a,b in zip(pattern[start-dy-1], pattern[start +dy]))
-        if diff > 1: break
-    if diff == 1: return start  
+
+    while low >= 0 and high < len(pattern):
+      diff += sum(a != b for a, b in zip(pattern[low], pattern[high]))
+      if diff > 1: break
+      low, high = low - 1, high + 1
+
+    if diff == 1: return start
+
   return 0
 
 
 def solve(p):
   part1 = part2 = 0
   patterns = [pattern.split('\n') for pattern in p]
-  
+
   for pattern in patterns:
-    part1 += mirror(pattern,False) * 100 + mirror(pattern,True)
-    part2 += mirror_smudge(pattern,False) * 100 + mirror_smudge(pattern,True)
-  
+    part1 += mirror(pattern) * 100 + mirror(list(zip(*pattern)))
+    part2 += mirror_smudge(pattern) * 100 + mirror_smudge(list(zip(*pattern)))
+
   return part1, part2
 
 
