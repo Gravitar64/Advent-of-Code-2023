@@ -7,18 +7,21 @@ def load(file):
 
 
 def mirror(pattern, part1):
-  for axis in range(1,len(pattern)):
+  for axis in range(1, len(pattern)):
     above, below = reversed(pattern[:axis]), pattern[axis:]
-    if part1: 
-      if all(a==b for a,b in zip(above,below)): return axis
+    if part1:
+      if all(a == b for a, b in zip(above, below)): return axis
     else:
-      if sum(c1 != c2 for a,b in zip(above,below) for c1,c2 in zip(a,b)) == 1: return axis  
-  return 0  
+      if sum(c1 != c2 for a, b in zip(above, below) for c1, c2 in zip(a, b)) == 1: return axis
+  return 0
 
 
-def solve(p,part1):
-  return sum(mirror(pattern,part1) * 100 + mirror(list(zip(*pattern)),part1) for pattern in p)
-  
+def solve(p, part1):
+  result = 0
+  for pattern in p:
+    result += mirror(pattern, part1) * 100 + mirror(list(zip(*pattern)), part1)
+  return result
+
 
 time_start = time.perf_counter()
 puzzle = load("day13.txt")
