@@ -3,40 +3,40 @@ import time
 
 def load(file):
   with open(file) as f:
-    return [row.strip() for row in f.readlines()]
+    return [row.strip() for row in f]
+
+
+def total_load(p):
+  return sum(row.count('O') * (len(p) - i) for i, row in enumerate(p))
 
 
 def roll(p):
   p = [''.join(a) for a in zip(*p)]
-  p = ['#'.join(''.join(sorted(s, reverse=True)) for s in row.split('#')) for row in p]
+  p = ['#'.join(''.join(sorted(sub, reverse=True)) for sub in row.split('#')) for row in p]
   return [''.join(a) for a in zip(*p)]
 
 
 def cycle(p):
   for _ in range(4):
     p = [''.join(a) for a in zip(*p)]
-    p = ['#'.join(''.join(sorted(s, reverse=True)) for s in row.split('#')) for row in p]
+    p = ['#'.join(''.join(sorted(sub, reverse=True)) for sub in row.split('#')) for row in p]
     p = [row[::-1] for row in p]
   return p
-
-
-def total_load(p):
-  return sum(col.count('O') * (len(p) - i) for i, col in enumerate(p))
 
 
 def solve(p):
   part1 = total_load(roll(p))
 
-  patterns, seen, counter = [p], {tuple(p)}, 0
+  patterns = [p]
   while True:
-    counter += 1
-    p = tuple(cycle(p))
-    if p in seen: break
+    p = cycle(p)
+    if p in patterns: break
     patterns.append(p)
-    seen.add(p)
 
+  hit = len(patterns)
   offset = patterns.index(p)
-  cycle_length = counter - offset
+  cycle_length = hit - offset
+  print(hit, offset, cycle_length)
   part2 = total_load(patterns[(1_000_000_000 - offset) % cycle_length + offset])
 
   return part1, part2
