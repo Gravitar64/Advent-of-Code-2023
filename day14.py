@@ -6,38 +6,36 @@ def load(file):
     return [row.strip() for row in f]
 
 
-def total_load(p):
+def points(p):
   return sum(row.count('O') * (len(p) - i) for i, row in enumerate(p))
 
 
 def roll(p):
-  p = [''.join(a) for a in zip(*p)]
+  p = [''.join(col) for col in zip(*p)]
   p = ['#'.join(''.join(sorted(sub, reverse=True)) for sub in row.split('#')) for row in p]
-  return [''.join(a) for a in zip(*p)]
+  return [''.join(col) for col in zip(*p)]
 
 
 def cycle(p):
   for _ in range(4):
-    p = [''.join(a) for a in zip(*p)]
+    p = [''.join(col) for col in zip(*p)]
     p = ['#'.join(''.join(sorted(sub, reverse=True)) for sub in row.split('#')) for row in p]
     p = [row[::-1] for row in p]
   return p
 
 
 def solve(p):
-  part1 = total_load(roll(p))
+  part1 = points(roll(p))
 
-  patterns = [p]
+  pattern = [p]
   while True:
     p = cycle(p)
-    if p in patterns: break
-    patterns.append(p)
+    if p in pattern: break
+    pattern.append(p)
 
-  hit = len(patterns)
-  offset = patterns.index(p)
-  cycle_length = hit - offset
-  print(hit, offset, cycle_length)
-  part2 = total_load(patterns[(1_000_000_000 - offset) % cycle_length + offset])
+  offset = pattern.index(p)
+  cycle_length = len(pattern) - offset
+  part2 = points(pattern[(1_000_000_000 - offset) % cycle_length + offset])
 
   return part1, part2
 
