@@ -16,7 +16,7 @@ def mirror(pattern, part1):
   return 0
 
 
-def solve(p, part1):
+def solve(p,part1):
   result = 0
   for pattern in p:
     result += mirror(pattern, part1) * 100 + mirror(list(zip(*pattern)), part1)
