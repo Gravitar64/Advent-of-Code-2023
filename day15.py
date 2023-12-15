@@ -7,26 +7,28 @@ def load(file):
   
 
 def hash(s):
-  result = 0
+  h = 0
   for c in s:
-    result = ((result + ord(c))*17) % 256
-  return result  
-  
+    h = ((h+ord(c))*17) % 256
+  return h  
+
 
 def solve(p):
   part1 = sum(hash(s) for s in p)
-  
+
   boxes = collections.defaultdict(dict)
   for s in p:
     if '=' in s:
-      label, n = s.split('=')
-      boxes[hash(label)][label]=int(n)
+      lense, fl = s.split('=')
+      boxes[hash(lense)][lense] = int(fl)
     else:
-      label = s[:-1]
-      boxes[hash(label)].pop(label,None)
+      lense = s[:-1]
+      boxes[hash(lense)].pop(lense,None)
 
-  part2 = sum((bn+1) * ln * fl for bn, lenses in boxes.items()
-                               for ln, fl in enumerate(lenses.values(), start = 1))
+  part2 = sum((bn+1) * ln * fl 
+              for bn, lenses in boxes.items()
+              for ln, fl in enumerate(lenses.values(),start=1))  
+      
   return part1, part2
 
 
