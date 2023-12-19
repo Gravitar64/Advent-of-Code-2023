@@ -1,7 +1,4 @@
-import time
-import collections
-import math
-import copy
+import time, collections,  math
 
 
 def load(file):
@@ -9,74 +6,71 @@ def load(file):
     return f.read()
 
 
-def comb(rule_dict, cur_rule='in', ranges=dict(x=(1, 4000), m=(1, 4000), a=(1, 4000), s=(1, 4000))):
-  if cur_rule == 'R':
-    return 0
+def parsing(p):
+  workflows, ratings = [[row for row in block.split('\n')] for block in p.split('\n\n')]
+  workflows2 = collections.defaultdict(list)
 
-  if cur_rule == 'A':
-    return math.prod(high - low + 1 for low, high in ranges.values())
+  for workflow in workflows:
+    name, conditions = workflow.split('{')
+    for condition in conditions[:-1].split(','):
+      con, target = condition.split(':') if ':' in condition else (None, condition)
+      if con: con = (con[0], con[1], int(con[2:]))
+      workflows2[name].append((con, target))
+
+  ratings = [eval(f'dict({s[1:-1]})') for s in ratings]
+  return workflows2, ratings
+
+
+def comb(wf, curr='in', ranges={c: (1, 4000) for c in 'xmas'}):
+  if curr == 'R': return 0
+  if curr == 'A': return math.prod(high - low + 1 for low, high in ranges.values())
 
   total = 0
-
-  for condition in rule_dict[cur_rule]:
-    if ':' in condition:
-      con, target = condition.split(':')
-      var, op, val = con[0], con[1], int(con[2:])
-      low, high = ranges[var]
-      if val < low or val > high: continue
-      
-      if op == '>':
-        ranges[var] = (val + 1, high)
-        total += comb(rule_dict, target, copy.deepcopy(ranges))
-        ranges[var] = (low, val)
-      else:
-        ranges[var] = (low, val - 1)
-        total += comb(rule_dict, target, copy.deepcopy(ranges))
-        ranges[var] = (val, high)
-   
+  for con, target in wf[curr]:
+    if not con:
+      total += comb(wf, target, ranges)
     else:
-      total += comb(rule_dict, condition, copy.deepcopy(ranges))
+      var, op, val = con
+      new_ranges = dict(ranges)
+      low, high = ranges[var]
+
+      if op == '<':
+        new_ranges[var] = (low, val - 1)
+        ranges[var] = (val, high)
+      else:
+        new_ranges[var] = (val + 1, high)
+        ranges[var] = (low, val)
+      total += comb(wf, target, new_ranges)
 
   return total
 
 
 def solve(p):
-  rule_dict = collections.defaultdict(list)
-  rules, xmas = [[row for row in e.split('\n')] for e in p.split('\n\n')]
+  workflows, ratings = parsing(p)
+  part1 = 0
 
-  for rule in rules:
-    name, conditions = rule.split('{')
-    conditions = conditions[:-1]
-    for condition in conditions.split(','):
-      rule_dict[name].append(condition)
-
-  xmas = [eval(f'dict({s[1:-1]})') for s in xmas]
-
-  part1, start_rule = 0, 'in'
-  for part in xmas:
-    cur_rule = start_rule
+  for rating in ratings:
+    curr = 'in'
     while True:
-      for condition in rule_dict[cur_rule]:
-        if ':' in condition:
-          con, target = condition.split(':')
-          if eval(f'{part[con[0]]}{con[1:]}'):
-            cur_rule = target
-            break
-        else:
-          cur_rule = condition
+      for con, target in workflows[curr]:
+        if not con:
+          curr = target
+          break
+        var, op, val = con
+        if eval(f'{rating[var]}{op}{val}'):
+          curr = target
           break
 
-      if cur_rule == 'A':
-        part1 += sum(part.values())
+      if curr == 'A':
+        part1 += sum(rating.values())
         break
 
-      if cur_rule == 'R':
+      if curr == 'R':
         break
 
-  part2 = comb(rule_dict)
-  return part1, part2
+  return part1, comb(workflows)
 
 
 time_start = time.perf_counter()
-print(f'Part 1&2: {solve(load("day19.txt"))}')
+print(f'Part 1 & 2: {solve(load("day19.txt"))}')
 print(f'Solved in {time.perf_counter()-time_start:.5f} Sec.')
