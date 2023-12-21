@@ -44,46 +44,34 @@ def solve(p):
       if obj2.type != '&': continue
       obj2.mem[object.name]=False
   
-  part1 = [0,0]
-  for n in range(1,1001):
-    queue = [(dest,False,'broadcaster') for dest in modules['broadcaster'].dest]
-    part1[0] += 1
-    while queue:
-      curr, impulse, last = queue.pop(0)
-      part1[impulse] += 1
-      if curr not in modules: continue
-      curr = modules[curr]
-            
-      if curr.type == '%' and impulse: continue
-      impulse = curr.receive_impulse(impulse,last)
-      
-      for nxt in curr.dest:
-        queue.append((nxt, impulse, curr.name))
-
-
+  #part1 & 2
   main_module = [m.name for m in modules.values() if 'rx' in m.dest][0]
-  part2 = {m:0 for m in modules[main_module].mem}
-  while not all(part2.values()):
-    n += 1
+  lowHigh, cycles  = [0,0], {m:0 for m in modules[main_module].mem}
+  
+  for buttons in range(1,10_000): 
+    if all(cycles.values()): break
     queue = [(dest,False,'broadcaster') for dest in modules['broadcaster'].dest]
+    if buttons < 1001: lowHigh[0] += 1
+    
     while queue:
       curr, impulse, last = queue.pop(0)
+      if buttons < 1001: lowHigh[impulse] += 1
       if curr not in modules: continue
       curr = modules[curr]
-            
-      if curr.name == main_module and impulse:
-        part2[last] = n - part2[last]
 
+      if curr.name == main_module and impulse:
+        cycles[last] = buttons - cycles[last]
+            
       if curr.type == '%' and impulse: continue
       impulse = curr.receive_impulse(impulse,last)
       
       for nxt in curr.dest:
         queue.append((nxt, impulse, curr.name))
 
-  return math.prod(part1), math.lcm(*part2.values())
+  return math.prod(lowHigh), math.lcm(*cycles.values())
 
 
 
 time_start = time.perf_counter()
-print(f'Part 1: {solve(load("day20.txt"))}')
+print(f'Part 1 & 2: {solve(load("day20.txt"))}')
 print(f'Solved in {time.perf_counter()-time_start:.5f} Sec.')
