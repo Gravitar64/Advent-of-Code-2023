@@ -52,7 +52,7 @@ def draw_beam(path,g):
       old_step = step
       paint_grid(g,10)
       pg.display.flip()
-      time.sleep(0.02)  # adjust the speed of the animaton
+      time.sleep(0.5)  # adjust the speed of the animaton
     f = p1.real * 10 + 5, p1.imag * 10 + 5
     t = p2.real * 10 + 5, p2.imag * 10 + 5
     color.hsva = (step % 360, 100, 100)
