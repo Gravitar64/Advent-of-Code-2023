@@ -1,4 +1,4 @@
-import time, re, collections
+import time, re, math, networkx
 
 
 def load(file):
@@ -7,20 +7,10 @@ def load(file):
 
 
 def solve(p):
-  g = collections.defaultdict(set)
-  for u, *vs in p:
-    for v in vs: 
-      g[u].add(v)
-      g[v].add(u)
-  
-  s=set(g)
-  count = lambda x: len(g[x]-s)
-
-  while sum(map(count,s)) != 3:
-    s.remove(max(s, key=count))
-
-  return len(s) * len(set(g) - s)      
-
+  g = networkx.Graph()
+  g.add_edges_from((a,b) for a,*others in p for b in others)
+  g.remove_edges_from(networkx.minimum_edge_cut(g))
+  return math.prod(map(len, networkx.connected_components(g)))  
 
 
 time_start = time.perf_counter()
