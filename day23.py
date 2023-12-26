@@ -7,56 +7,50 @@ def load(file):
             for x, c in enumerate(row.strip()) if c != '#'}
 
 
-def get_neighbors(p,pos,c,part1):
-  if part1 and c != '.':
-    return [pos + dirs[c]] 
+def neigb(p, pos, part1):
+  if part1 and p[pos] != '.':
+    return [pos + dirs[p[pos]]]
   else:
-    neighb = []
-    for delta in dirs.values():
-      if (pos2 := pos+delta) not in p: continue
-      neighb.append(pos2)
-    return neighb  
+    return [pos + delta for delta in dirs.values() if pos + delta in p]
 
 
-def dfs(G, node, target, dist, seen):
+def dfs(p, node, target, dist, seen):
   if node == target: yield dist
-  for pos in G[node]:
+  for pos in neigb(p, node, True):
     if pos in seen: continue
-    yield from dfs(G, pos, target, dist+1, seen | {pos})
+    yield from dfs(p, pos, target, dist + 1, seen | {pos})
 
 
-def dfs2(G, node, target, dist, seen):
+def dfs2(g, node, target, dist, seen):
   if node == target: yield dist
-  for pos, d in G[node]:
+  for pos, d in g[node]:
     if pos in seen: continue
-    yield from dfs2(G, pos, target, dist + d, seen | {pos})
-  
-     
+    yield from dfs2(g, pos, target, dist + d, seen | {pos})
+
+
+def compress_graph(p, source, target):
+  g = collections.defaultdict(list)
+  junctions = {source} | {pos for pos in p if len(neigb(p, pos, False)) > 2} | {target}
+  for pos in junctions:
+    for pos2 in neigb(p, pos, False):
+      prev, cur = pos, pos2
+      d = 1
+      while cur not in junctions:
+        prev, cur = cur, [pos3 for pos3 in neigb(p, cur, False) if pos3 != prev][0]
+        d += 1
+      g[pos].append((cur, d))
+  return g
+
+
 def solve(p):
   source = min(p, key=lambda x: (x.imag, x.real))
   target = max(p, key=lambda x: (x.imag, x.real))
-  
-  G1, G2 = dict(), dict()
-  for pos,c in p.items():
-    G1[pos] = get_neighbors(p,pos,c,True)
-    G2[pos] = get_neighbors(p,pos,c,False)
-  
-  part1 = max(dfs(G1,source,target,0,{source}))
+  part1 = max(dfs(p, source, target, 0, {source}))
 
-  junctions = [source] + [pos for pos,n in G2.items() if len(n) > 2] + [target]
-  G = collections.defaultdict(list)
-  for pos in junctions:
-     for pos2 in G2[pos]:
-       previous, cur = pos, pos2
-       d = 1
-       while cur not in junctions:
-         previous, cur = cur, [pos3 for pos3 in G2[cur] if pos3 != previous][0]
-         d += 1
-       G[pos].append((cur, d))
-  
-  part2 = max(dfs2(G,source,target,0,{source}))
-  
-  return part1,part2
+  g = compress_graph(p, source, target)
+  part2 = max(dfs2(g, source, target, 0, {source}))
+
+  return part1, part2
 
 
 time_start = time.perf_counter()
