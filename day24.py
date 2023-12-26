@@ -1,4 +1,4 @@
-import time, re, itertools
+import time, re, itertools, z3
 
 
 def load(file):
@@ -28,7 +28,18 @@ def intersect_in_area(p_1, v_1, p_2, v_2, low, high):
 def solve(p, low, high):
   stones = [(stone[:2], stone[3:5]) for stone in p]
   part1 = sum(intersect_in_area(*a, *b, low, high) for a, b in itertools.combinations(stones, 2))
-  return part1
+  
+  s = z3.Solver()
+  x, y, z, dx, dy, dz = map(z3.Int, ["x", "y", "z", "dx", "dy", "dz"])
+  for i,h in enumerate(p):
+    t = z3.Int(f't{i}')
+    s.add(x+dx*t == h[0]+h[3]*t)
+    s.add(y+dy*t == h[1]+h[4]*t)
+    s.add(z+dz*t == h[2]+h[5]*t)
+  s.check()
+  part2 = s.model().eval(x+y+z)  
+
+  return part1,part2
 
 
 time_start = time.perf_counter()
