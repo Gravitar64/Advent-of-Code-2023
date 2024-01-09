@@ -15,41 +15,41 @@ def solve(p):
       case '%': state = False
       case '&': state = dict()
       case 'b': state = None
-    modules[sender] = [type, receiver, state]
+    modules[sender] = [type,receiver,state]
     for rec in receiver:
       modules_inv[rec].add(sender)
-  
+
   for rec, sender in modules_inv.items():
     if rec not in modules: continue
     if modules[rec][TYPE] != '&': continue
-    modules[rec][STATE]={s:False for s in sender}
-    
-  master_conjunction = modules_inv['rx'].pop()
-  cycle = dict()
-     
+    modules[rec][STATE] = {s:False for s in sender}
+
   lowHigh = [0,0]
-  for button in range(10_000):
-    fifo = [('Button', 'roadcaster', False)]
+  master_conjunction = modules_inv['rx'].pop()
+  cycles = dict()
+ 
+  for button in range(1,10_000):
+    fifo = [('button', 'roadcaster', False)]
     while fifo:
-      sender, receiver, impulse = fifo.pop(0)
-      if button < 1000: lowHigh[impulse] += 1
+      sender, receiver, pulse = fifo.pop(0)
+      if button < 1001: lowHigh[pulse] += 1
       if receiver not in modules: continue
 
-      if receiver == master_conjunction and impulse:
-        cycle[sender] = button - cycle.get(sender,0)
-
+      if receiver == master_conjunction and pulse:
+        cycles[sender] = button - cycles.get(sender,0)
+        
       if modules[receiver][TYPE] == '%':
-        if impulse: continue
-        impulse = modules[receiver][STATE] = not modules[receiver][STATE]
-   
+        if pulse: continue
+        pulse = modules[receiver][STATE] = not modules[receiver][STATE]
+
       if modules[receiver][TYPE] == '&':
-        modules[receiver][STATE][sender] = impulse
-        impulse = not all(modules[receiver][STATE].values())
+        modules[receiver][STATE][sender] = pulse
+        pulse = not all(modules[receiver][STATE].values())  
 
       for receiver_receiver in modules[receiver][RECEIVER]:
-        fifo.append((receiver, receiver_receiver, impulse))
+        fifo.append((receiver, receiver_receiver, pulse))
 
-  return math.prod(lowHigh), math.lcm(*cycle.values())
+  return math.prod(lowHigh), math.lcm(*cycles.values())
 
 
 time_start = time.perf_counter()
