@@ -26,7 +26,6 @@ def solve(p):
   
   master_conjunction = modules_i['rx'].pop()
   cycles = dict()
-  
   lowHigh = [0,0]
   for button in range(1,10_000):
     fifo = [('button', 'roadcaster', False)]
@@ -37,8 +36,7 @@ def solve(p):
 
       if receiver == master_conjunction and pulse:
         cycles[sender] = button - cycles.get(sender,0)
-        
-
+       
       if modules[receiver][TYPE] == '%':
         if pulse: continue
         pulse = modules[receiver][STATE] = not modules[receiver][STATE]
@@ -52,19 +50,6 @@ def solve(p):
   return math.prod(lowHigh), math.lcm(*cycles.values())        
 
 
-
-
-
-
-
-
-
-
-  return modules
-       
-     
-
-
 time_start = time.perf_counter()
-print(f'Part 1: {solve(load("day20.txt"))}')
+print(f'Part 1 & 2: {solve(load("day20.txt"))}')
 print(f'Solved in {time.perf_counter()-time_start:.5f} Sec.')
