@@ -7,14 +7,14 @@ def load(file):
   
 
 def drop(p,skip):
-  hight_map = collections.defaultdict(int)
+  height_map = collections.defaultdict(int)
   fallen = 0
   for i, (x1,y1,z1,x2,y2,z2) in enumerate(p):
     if i == skip: continue
     poss = [(x,y) for x in range(x1,x2+1) for y in range(y1,y2+1)]
-    lowest = max(hight_map[pos] for pos in poss) + 1
+    lowest = max(height_map[pos] for pos in poss) + 1
     for pos in poss:
-      hight_map[pos] = lowest + z2 - z1
+      height_map[pos] = lowest + z2 - z1
     if lowest == z1: continue
     fallen += 1
     if skip == None: p[i] = [x1,y1,lowest,x2,y2,lowest +z2 - z1]

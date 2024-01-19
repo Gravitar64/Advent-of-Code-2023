@@ -1,5 +1,4 @@
-import time
-import re
+import time, re
 
 
 def load(file):
@@ -30,8 +29,7 @@ def solve(p):
   pairs = [(a,a+b) for a,b in zip(seeds[::2], seeds[1::2])]
   for low, high in pairs:
     while low < high:
-      seed = low
-      seed, low = change_seed(seed, converters, low=-1)     
+      seed, low = change_seed(low, converters, low=-1)     
       part2 = min(part2, seed)
 
   return part1, part2

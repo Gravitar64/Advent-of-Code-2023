@@ -20,8 +20,8 @@ def solve(p):
   x = 26501365//131
   points = (results[65], results[65+131], results[65+131*2])
   a,b,c = map(round,numpy.poly1d(numpy.polyfit([0,1,2], points, 2)))
-  part2 = a*x**2 + b*x + c
-  return results[64], part2
+    
+  return results[64], a*x**2 + b*x + c
 
 
 time_start = time.perf_counter()
