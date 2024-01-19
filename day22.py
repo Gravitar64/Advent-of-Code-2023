@@ -1,34 +1,38 @@
-#based on an idea from 4HbQ on reddit
-
 import time, re, collections
 
 
 def load(file):
   with open(file) as f:
-    return [list(map(int,re.findall('\d+',row))) for row in f.readlines()]
-
-
-def drop(bricks, skip=None):
-  peaks, falls = collections.defaultdict(int), 0
+    return [list(map(int,re.findall('\d+',row))) for row in f]
   
-  for i, (x1, y1, z1, x2, y2, z2) in enumerate(bricks):
+
+def drop(p,skip):
+  hight_map = collections.defaultdict(int)
+  fallen = 0
+  for i, (x1,y1,z1,x2,y2,z2) in enumerate(p):
     if i == skip: continue
-    area = [(a, b) for a in range(x1, x2 + 1) for b in range(y1, y2 + 1)]
-    peak = max(peaks[a] for a in area) + 1
-    for a in area: peaks[a] = peak + z2 - z1
-    if peak == z1: continue
-    bricks[i] = [x1, y1, peak, x2, y2, peak + z2 - z1]
-    falls += 1
+    poss = [(x,y) for x in range(x1,x2+1) for y in range(y1,y2+1)]
+    lowest = max(hight_map[pos] for pos in poss) + 1
+    for pos in poss:
+      hight_map[pos] = lowest + z2 - z1
+    if lowest == z1: continue
+    fallen += 1
+    if skip == None: p[i] = [x1,y1,lowest,x2,y2,lowest +z2 - z1]
+  return not fallen, fallen   
+
   
-  return not falls, falls
-
-
 def solve(p):
-  bricks = sorted(p,key=lambda brick:brick[2])
-  drop(bricks)
-  return [*map(sum, zip(*[drop(bricks.copy(), skip=i) for i in range(len(bricks))]))]
+  part1 = part2 = 0
+  p = sorted(p,key=lambda x:x[2])
+  drop(p, None)
+  for i in range(len(p)):
+    disintegrated, fallen = drop(p,i)
+    part1 += disintegrated
+    part2 += fallen
+
+  return part1, part2
 
 
 time_start = time.perf_counter()
-print(f'Part 1 & 2: {solve(load("day22.txt"))}')
+print(f'Part 1: {solve(load("day22.txt"))}')
 print(f'Solved in {time.perf_counter()-time_start:.5f} Sec.')
